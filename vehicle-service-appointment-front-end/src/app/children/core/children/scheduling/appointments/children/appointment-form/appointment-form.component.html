@@ -1,0 +1,943 @@
+<form (ngSubmit)="onSubmit()" [formGroup]="general" class="w-full">
+  <p-card>
+    <ng-template pTemplate="header">
+      <p-toolbar>
+        <div
+          class="p-toolbar-group-left flex flex-wrap gap-2 align-items-between justify-content-between"
+        >
+          <span class="p-card-title">{{ title }}</span>
+        </div>
+        <div
+          class="p-toolbar-group-right flex flex-wrap gap-2 align-items-between justify-content-between"
+        >
+          <p-button
+            (onClick)="backToList()"
+            [disabled]="!(appointmentsHttpService.loadedGetOne | async)"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-angle-left"
+            label="Ver lista"
+            severity="secondary"
+            size="small"
+            type="button"
+          />
+          <p-button
+            (onClick)="getOne()"
+            *ngIf="id"
+            [disabled]="!(appointmentsHttpService.loadedGetOne | async)"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-refresh"
+            label="Recargar"
+            severity="help"
+            size="small"
+            type="button"
+          />
+          <p-button
+            [disabled]="
+              !(appointmentsHttpService.loadedGetOne | async) && general.valid
+            "
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-plus"
+            label="Guardar"
+            severity="success"
+            size="small"
+            type="submit"
+          />
+        </div>
+      </p-toolbar>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <p-stepper orientation="horizontal">
+        <p-stepperPanel
+          *ngIf="
+            sessionService.hasRole([
+              RoleType.SUPER_ADMINISTRATOR,
+              RoleType.CUSTOMER,
+            ])
+          "
+          header="Datos generales"
+        >
+          <ng-template
+            let-index="index"
+            let-nextCallback="nextCallback"
+            pTemplate="content"
+          >
+            <div class="w-full">
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <p-tag
+                  class="field"
+                  icon="pi pi-clock"
+                  severity="warning"
+                  value="La cita tendrá una duración promedio de 4h"
+                />
+              </div>
+              <br/>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-calendar
+                    [formControl]="scheduled_atField"
+                    [showIcon]="true"
+                    [showOnFocus]="false"
+                    inputId="scheduled_at"
+                  />
+                  <label for="scheduled_at">Agendado para</label>
+                </span>
+                <small
+                  *ngIf="scheduled_atField.dirty || scheduled_atField.touched"
+                  [dirty]="scheduled_atField.dirty"
+                  [errors]="scheduled_atField.errors"
+                  [touched]="scheduled_atField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!scheduled_atField.errors" id="scheduled_at-help">
+                  Fecha de la cita
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-calendar
+                    [formControl]="valid_until_atField"
+                    [minDate]="scheduled_atField.value"
+                    [showIcon]="true"
+                    [showOnFocus]="false"
+                    inputId="valid_until_at"
+                  />
+                  <label for="valid_until_at">Fecha de expiración</label>
+                </span>
+                <small
+                  *ngIf="
+                    valid_until_atField.dirty || valid_until_atField.touched
+                  "
+                  [dirty]="valid_until_atField.dirty"
+                  [errors]="valid_until_atField.errors"
+                  [touched]="valid_until_atField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small
+                  *ngIf="!valid_until_atField.errors"
+                  id="valid_until_at-help"
+                >
+                  Fecha hasta cuando la cita es valida.
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="statusField"
+                    [options]="appointmentStatusList"
+                    [showClear]="true"
+                    inputId="status"
+                    placeholder="Vehículo"
+                    styleClass="w-full"
+                  ></p-dropdown>
+                  <label for="status">Estado</label>
+                </span>
+                <small
+                  *ngIf="statusField.dirty || statusField.touched"
+                  [dirty]="statusField.dirty"
+                  [errors]="statusField.errors"
+                  [touched]="statusField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!statusField.errors" id="status-help">
+                  Estado de la cita
+                </small>
+              </div>
+
+              <br/>
+              <h6 class="col-12">Descripción</h6>
+              <p-editor
+                [formControl]="descriptionField"
+                styleClass="w-full h-auto"
+              ></p-editor>
+              <small
+                *ngIf="descriptionField.dirty || descriptionField.touched"
+                [dirty]="descriptionField.dirty"
+                [errors]="descriptionField.errors"
+                [touched]="descriptionField.touched"
+                appErrorMessage
+              >
+              </small>
+              <small *ngIf="!descriptionField.errors" id="description-help">
+                Notas para la cita
+              </small>
+              <br/>
+              <br/>
+              <h6 class="col-12">Razón</h6>
+              <p-editor
+                [formControl]="reasonField"
+                styleClass="w-full h-auto"
+              ></p-editor>
+              <small
+                *ngIf="reasonField.dirty || reasonField.touched"
+                [dirty]="reasonField.dirty"
+                [errors]="reasonField.errors"
+                [touched]="reasonField.touched"
+                appErrorMessage
+              >
+              </small>
+              <small *ngIf="!reasonField.errors" id="reason-help">
+                Motivo de la cita
+              </small>
+            </div>
+            <div class="flex py-4">
+              <p-button (onClick)="nextCallback.emit()" label="Siguiente"/>
+            </div>
+          </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel
+          *ngIf="
+            sessionService.hasRole([
+              RoleType.SUPER_ADMINISTRATOR,
+              RoleType.CUSTOMER,
+            ])
+          "
+          header="Vehículos para la cita"
+        >
+          <ng-template
+            let-index="index"
+            let-nextCallback="nextCallback"
+            let-prevCallback="prevCallback"
+            pTemplate="content"
+          >
+            <form (submit)="addVehicle()" [formGroup]="vehicle" class="w-full">
+              <h5>Agregar vehículo</h5>
+              <p>
+                Si el vehículo ya fue ingresado anteriormente al sistema, debe
+                ingresar de igual manera. No se preocupe solo recuerde escribir
+                la misma placa para que se pueda encontrar su vehículo.
+              </p>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <input
+                    [formControl]="vehiclePlateField"
+                    class="w-full"
+                    id="plate"
+                    pInputText
+                    type="text"
+                  />
+                  <label for="plate">Placa</label>
+                </span>
+                <small
+                  *ngIf="vehiclePlateField.dirty || vehiclePlateField.touched"
+                  [dirty]="vehiclePlateField.dirty"
+                  [errors]="vehiclePlateField.errors"
+                  [touched]="vehiclePlateField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehiclePlateField.errors" id="plate-help">
+                  Placa del vehículo
+                </small>
+              </div>
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="vehicleBrandField"
+                    [options]="brands"
+                    [showClear]="true"
+                    dropdownIcon="pi pi-car"
+                    inputId="vehicle_id"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Vehículo"
+                    styleClass="w-full"
+                  ></p-dropdown>
+                  <label for="type">Marca de vehículo</label>
+                </span>
+                <small
+                  *ngIf="vehicleBrandField.dirty || vehicleBrandField.touched"
+                  [dirty]="vehicleBrandField.dirty"
+                  [errors]="vehicleBrandField.errors"
+                  [touched]="vehicleBrandField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehicleBrandField.errors" id="brand-help">
+                  Marca de vehículo
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="vehicleModelField"
+                    [options]="models"
+                    [showClear]="true"
+                    dropdownIcon="pi pi-car"
+                    inputId="vehicle_id"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Vehículo"
+                    styleClass="w-full"
+                  ></p-dropdown>
+                  <label for="type">Modelo de vehículo</label>
+                </span>
+                <small
+                  *ngIf="vehicleModelField.dirty || vehicleModelField.touched"
+                  [dirty]="vehicleModelField.dirty"
+                  [errors]="vehicleModelField.errors"
+                  [touched]="vehicleModelField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehicleModelField.errors" id="model-help">
+                  Modelo de vehículo
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="vehicleFuelField"
+                    [options]="fuels"
+                    [showClear]="true"
+                    dropdownIcon="pi pi-car"
+                    inputId="vehicle_id"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Vehículo"
+                    styleClass="w-full"
+                  ></p-dropdown>
+                  <label for="fuel">Combustible</label>
+                </span>
+                <small
+                  *ngIf="vehicleFuelField.dirty || vehicleFuelField.touched"
+                  [dirty]="vehicleFuelField.dirty"
+                  [errors]="vehicleFuelField.errors"
+                  [touched]="vehicleFuelField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehicleFuelField.errors" id="fuel-help">
+                  Tipo de combustible
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-inputNumber
+                    [formControl]="vehicleMileageField"
+                    [min]="0"
+                    [showButtons]="true"
+                    inputId="minmax-buttons"
+                    mode="decimal"
+                  />
+                  <label for="mileage">Kilometraje</label>
+                </span>
+                <small
+                  *ngIf="
+                    vehicleMileageField.dirty || vehicleMileageField.touched
+                  "
+                  [dirty]="vehicleMileageField.dirty"
+                  [errors]="vehicleMileageField.errors"
+                  [touched]="vehicleMileageField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehicleMileageField.errors" id="mileage-help">
+                  Total de kilometraje
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <input
+                    [formControl]="vehicleMadeInField"
+                    class="w-full"
+                    id="made_in"
+                    pInputText
+                    type="text"
+                  />
+                  <label for="made_in">Fabricado en</label>
+                </span>
+                <small
+                  *ngIf="vehicleMadeInField.dirty || vehicleMadeInField.touched"
+                  [dirty]="vehicleMadeInField.dirty"
+                  [errors]="vehicleMadeInField.errors"
+                  [touched]="vehicleMadeInField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehicleMadeInField.errors" id="made_in-help">
+                  Lugar de fabricación
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-calendar
+                    [formControl]="vehicleWarrantyUpToField"
+                    [showIcon]="true"
+                    [showOnFocus]="false"
+                    inputId="warranty_up_to"
+                    styleClass="w-full"
+                  />
+                  <label for="warranty_up_to">Con garantía</label>
+                </span>
+                <small
+                  *ngIf="
+                    vehicleWarrantyUpToField.dirty ||
+                    vehicleWarrantyUpToField.touched
+                  "
+                  [dirty]="vehicleWarrantyUpToField.dirty"
+                  [errors]="vehicleWarrantyUpToField.errors"
+                  [touched]="vehicleWarrantyUpToField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small
+                  *ngIf="!vehicleWarrantyUpToField.errors"
+                  id="warranty_up_to-help"
+                >
+                  Si el vehículo posee actualmente garantía
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-calendar
+                    [formControl]="vehicleNextReviewAtField"
+                    [showIcon]="true"
+                    [showOnFocus]="false"
+                    inputId="next_review_at"
+                    styleClass="w-full"
+                  />
+                  <label for="next_review_at"
+                  >Fecha para próxima revisión</label
+                  >
+                </span>
+                <small
+                  *ngIf="
+                    vehicleNextReviewAtField.dirty ||
+                    vehicleNextReviewAtField.touched
+                  "
+                  [dirty]="vehicleNextReviewAtField.dirty"
+                  [errors]="vehicleNextReviewAtField.errors"
+                  [touched]="vehicleNextReviewAtField.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small
+                  *ngIf="!vehicleNextReviewAtField.errors"
+                  id="next_review_at-help"
+                >
+                  Fecha para la siguiente revisión
+                </small>
+              </div>
+
+              <div class="flex gap-3 mt-1">
+                <p-button
+                  [raised]="true"
+                  [rounded]="true"
+                  class="w-full"
+                  icon="pi pi-save"
+                  label="Guardar"
+                  severity="success"
+                  size="small"
+                  styleClass="w-full"
+                  type="submit"
+                />
+              </div>
+
+              <p-tag
+                *ngIf="vehicles.length == 0"
+                icon="pi pi-exclamation-triangle"
+                severity="warning"
+                value="Agrega al menos un vehículo"
+              />
+              <app-table
+                (delete)="deleteQuestionVehicle($event)"
+                *ngIf="vehicles.length > 0"
+                [columns]="vehicleColumns"
+                [loading]="appointmentsHttpService.loadedGetOne | async"
+                [showCaption2]="false"
+                [showCreate]="false"
+                [showPagination]="false"
+                [showReload]="false"
+                [value]="vehicles.value"
+              />
+            </form>
+            <div class="flex py-4 gap-2">
+              <p-button
+                (onClick)="prevCallback.emit()"
+                label="Antetior"
+                severity="secondary"
+              />
+              <p-button (onClick)="nextCallback.emit()" label="Siguiente"/>
+            </div>
+          </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel
+          *ngIf="
+            sessionService.hasRole([
+              RoleType.SUPER_ADMINISTRATOR,
+              RoleType.MECHANIC,
+            ])
+          "
+          header="Detalles generales de vehículos"
+        >
+          <ng-template
+            let-index="index"
+            let-nextCallback="nextCallback"
+            let-prevCallback="prevCallback"
+            pTemplate="content"
+          >
+            <p-tag
+              *ngIf="vehicles.length == 0"
+              icon="pi pi-exclamation-triangle"
+              severity="warning"
+              value="Agrega al menos un vehículo"
+            />
+            <div formArrayName="vehicles">
+              <p-table
+                *ngIf="vehicles.length > 0"
+                [columns]="vehicleColumnsGeneral"
+                [reorderableColumns]="true"
+                [tableStyle]="{ width: '100%' }"
+                [value]="vehicles.controls"
+                class="datatable-wrapper-overflow-visible"
+                dataKey="id"
+              >
+                <ng-template let-columns pTemplate="header">
+                  <tr>
+                    <th style="width: 3rem"></th>
+                    <ng-container *ngFor="let col of columns">
+                      <th *ngIf="!col.sortable">
+                        {{ col.header }}
+                        <p-columnFilter
+                          [field]="col.field"
+                          display="menu"
+                          placeholder="Search by name"
+                          type="text"
+                        ></p-columnFilter>
+                      </th>
+                      <th *ngIf="col.sortable" [pSortableColumn]="col.field">
+                        {{ col.header }}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                        <p-columnFilter
+                          [field]="col.field"
+                          display="menu"
+                          placeholder="Search by name"
+                          type="text"
+                        ></p-columnFilter>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  let-columns="columns"
+                  let-index="rowIndex"
+                  let-rowData
+                  pTemplate="body"
+                >
+                  <tr
+                    [formGroupName]="index"
+                    [pReorderableRow]="index"
+                    [pSelectableRow]="rowData"
+                  >
+                    <td>
+                      <span class="pi pi-bars" pReorderableRowHandle></span>
+                    </td>
+                    <ng-container *ngFor="let col of columns">
+                      <ng-container [ngSwitch]="col.field">
+                        <td *ngSwitchCase="'damage_percentage'">
+                          <p-dropdown
+                            [filter]="true"
+                            [options]="damagePercentage"
+                            [showClear]="true"
+                            dropdownIcon="pi pi-angle-down"
+                            formControlName="damage_percentage"
+                            inputId="status_service"
+                            placeholder="Seleccione"
+                            styleClass="w-full"
+                          />
+                        </td>
+                        <td *ngSwitchCase="'status_service'">
+                          <p-dropdown
+                            [filter]="true"
+                            [options]="statusService"
+                            [showClear]="true"
+                            dropdownIcon="pi pi-angle-down"
+                            formControlName="status_service"
+                            inputId="status_service"
+                            placeholder="Seleccione"
+                            styleClass="w-full"
+                          />
+                        </td>
+                        <td *ngSwitchCase="'type_service'">
+                          <p-dropdown
+                            [filter]="true"
+                            [options]="typeService"
+                            [showClear]="true"
+                            dropdownIcon="pi pi-angle-down"
+                            formControlName="type_service"
+                            inputId="type_service"
+                            placeholder="Seleccione"
+                            styleClass="w-full"
+                          />
+                        </td>
+                        <td *ngSwitchDefault>
+                          <span class="p-column-title">{{ col.header }}</span>
+                          <span>{{ rowData.value[col.field] }}</span>
+                        </td>
+                      </ng-container>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+            <div class="flex py-4 gap-2">
+              <p-button
+                (onClick)="prevCallback.emit()"
+                label="Antetior"
+                severity="secondary"
+              />
+              <p-button (onClick)="nextCallback.emit()" label="Siguiente"/>
+            </div>
+          </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel
+          *ngIf="
+            sessionService.hasRole([
+              RoleType.SUPER_ADMINISTRATOR,
+              RoleType.MECHANIC,
+            ])
+          "
+          header="Detalles específicos de vehículos"
+        >
+          <ng-template
+            let-index="index"
+            let-nextCallback="nextCallback"
+            let-prevCallback="prevCallback"
+            pTemplate="content"
+          >
+            <form (submit)="addProduct()" [formGroup]="product" class="w-full">
+              <p-tag
+                *ngIf="vehicles.length == 0"
+                icon="pi pi-exclamation-triangle"
+                severity="warning"
+                value="Agrega al menos un vehículo"
+              />
+              <p-table
+                *ngIf="vehicles.length > 0"
+                [columns]="vehicleColumnsGeneral"
+                [reorderableColumns]="true"
+                [tableStyle]="{ width: '100%' }"
+                [value]="vehicles.controls"
+                class="datatable-wrapper-overflow-visible"
+                dataKey="id"
+              >
+                <ng-template let-columns pTemplate="header">
+                  <tr>
+                    <th style="width: 3rem"></th>
+                    <ng-container *ngFor="let col of columns">
+                      <th *ngIf="!col.sortable">
+                        {{ col.header }}
+                        <p-columnFilter
+                          [field]="col.field"
+                          display="menu"
+                          placeholder="Search by name"
+                          type="text"
+                        ></p-columnFilter>
+                      </th>
+                      <th *ngIf="col.sortable" [pSortableColumn]="col.field">
+                        {{ col.header }}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                        <p-columnFilter
+                          [field]="col.field"
+                          display="menu"
+                          placeholder="Search by name"
+                          type="text"
+                        ></p-columnFilter>
+                      </th>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  let-columns="columns"
+                  let-expanded="expanded"
+                  let-index="rowIndex"
+                  let-rowData
+                  pTemplate="body"
+                >
+                  <tr [pReorderableRow]="index" [pSelectableRow]="rowData">
+                    <td>
+                      <p-button
+                        [icon]="
+                          expanded
+                            ? 'pi pi-chevron-down'
+                            : 'pi pi-chevron-right'
+                        "
+                        [pRowToggler]="rowData"
+                        [plain]="true"
+                        [rounded]="true"
+                        [text]="true"
+                        pRipple
+                        type="button"
+                      />
+                    </td>
+                    <td *ngFor="let col of columns">
+                      <span class="p-column-title">{{ col.header }}</span>
+                      <span>{{ rowData.value[col.field] }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template let-rowData pTemplate="rowexpansion">
+                  <tr>
+                    <td colspan="5">
+                      <div class="p-3">
+                        <p-table
+                          [value]="
+                            vehicleProductsProductByVehicle(rowData.value)
+                          "
+                          dataKey="id"
+                        >
+                          <ng-template pTemplate="header">
+                            <tr>
+                              <th pSortableColumn="id">
+                                #
+                                <p-sortIcon field="price"/>
+                              </th>
+                              <th pSortableColumn="customer">
+                                Producto
+                                <p-sortIcon field="customer"/>
+                              </th>
+                              <th pSortableColumn="date">
+                                Reparar
+                                <p-sortIcon field="date"/>
+                              </th>
+                              <th pSortableColumn="amount">
+                                Nuevo Producto
+                                <p-sortIcon field="amount"/>
+                              </th>
+                              <th style="width: 4rem">Opciones</th>
+                            </tr>
+                          </ng-template>
+                          <ng-template let-order pTemplate="body">
+                            <tr>
+                              <td>{{ order.id }}</td>
+                              <td>{{ order.product.name }}</td>
+                              <td>
+                                <p-tag
+                                  [value]="
+                                    order.repair
+                                      ? 'Producto a reparar'
+                                      : 'No se debe reparar'
+                                  "
+                                  severity="info"
+                                />
+                              </td>
+                              <td>
+                                {{ order?.child?.product?.name }}
+                              </td>
+                              <td>
+                                <p-button
+                                  (onClick)="deleteQuestionProduct(order)"
+                                  [raised]="true"
+                                  [rounded]="true"
+                                  icon="pi pi-trash"
+                                  pRipple
+                                  severity="danger"
+                                  size="small"
+                                />
+                              </td>
+                            </tr>
+                          </ng-template>
+                          <ng-template pTemplate="emptymessage">
+                            <tr>
+                              <td colspan="6">Vehículo sin productos.</td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+
+              <p-divider/>
+              <h5>Agregar productos/servicios</h5>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="vehicle_id"
+                    [options]="vehicles.value ?? []"
+                    [showClear]="true"
+                    dropdownIcon="pi pi-car"
+                    inputId="vehicle_id"
+                    optionLabel="plate"
+                    optionValue="plate"
+                    placeholder="Vehículo"
+                    styleClass="w-full"
+                  ></p-dropdown>
+                  <label htmlFor="card_id">Vehículo</label>
+                </span>
+                <small
+                  *ngIf="vehicle_id.dirty || vehicle_id.touched"
+                  [dirty]="vehicle_id.dirty"
+                  [errors]="vehicle_id.errors"
+                  [touched]="vehicle_id.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!vehicle_id.errors" id="vehicle_id-help">
+                  Vehículo que tiene este producto.
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="product_id"
+                    [options]="products"
+                    [showClear]="true"
+                    dropdownIcon="pi pi-list"
+                    inputId="product_id"
+                    optionLabel="name"
+                    optionValue="id"
+                    styleClass="w-full"
+                  />
+                  <label htmlFor="product_id">Producto</label>
+                </span>
+                <small
+                  *ngIf="product_id.dirty || product_id.touched"
+                  [dirty]="product_id.dirty"
+                  [errors]="product_id.errors"
+                  [touched]="product_id.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!product_id.errors" id="product_id-help">
+                  Producto del vehículo.
+                </small>
+              </div>
+
+              <div
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <div class="flex align-items-center gap-1">
+                  <p-checkbox
+                    [binary]="true"
+                    [formControl]="repair"
+                    [value]="true"
+                    inputId="repair"
+                    name="repair"
+                  ></p-checkbox>
+                  <label htmlFor="repair">Reparar</label>
+                </div>
+                <small
+                  *ngIf="repair.dirty || repair.touched"
+                  [dirty]="repair.dirty"
+                  [errors]="repair.errors"
+                  [touched]="repair.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!repair.errors" id="repair-help">
+                  Determina si el producto dede ser reparado.
+                </small>
+              </div>
+
+              <div
+                *ngIf="repair.value"
+                class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+              >
+                <span class="p-float-label w-full">
+                  <p-dropdown
+                    [filter]="true"
+                    [formControl]="child_id"
+                    [options]="products"
+                    [showClear]="true"
+                    dropdownIcon="pi pi-list"
+                    inputId="child_id"
+                    optionLabel="name"
+                    optionValue="id"
+                    styleClass="w-full"
+                  />
+                  <label htmlFor="child_id">Producto nuevo</label>
+                </span>
+                <small
+                  *ngIf="child_id.dirty || child_id.touched"
+                  [dirty]="child_id.dirty"
+                  [errors]="child_id.errors"
+                  [touched]="child_id.touched"
+                  appErrorMessage
+                >
+                </small>
+                <small *ngIf="!child_id.errors" id="child_id-help">
+                  Nuevo producto para remplazar.
+                </small>
+              </div>
+
+              <div class="flex gap-3 mt-1">
+                <p-button
+                  [raised]="true"
+                  [rounded]="true"
+                  class="w-full"
+                  icon="pi pi-save"
+                  label="Guardar"
+                  severity="success"
+                  size="small"
+                  styleClass="w-full"
+                  type="submit"
+                />
+              </div>
+            </form>
+            <div class="flex py-4 gap-2">
+              <p-button
+                (onClick)="prevCallback.emit()"
+                label="Antetior"
+                severity="secondary"
+              />
+            </div>
+          </ng-template>
+        </p-stepperPanel>
+      </p-stepper>
+    </ng-template>
+  </p-card>
+</form>

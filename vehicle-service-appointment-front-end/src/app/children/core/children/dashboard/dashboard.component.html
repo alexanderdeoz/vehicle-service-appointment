@@ -1,0 +1,120 @@
+<div class="grid">
+  <div class="col-12 lg:col-6 xl:col-3">
+    <div class="card mb-0">
+      <div class="flex justify-content-between mb-3">
+        <div>
+          <span class="block text-500 font-medium mb-3">Citas</span>
+          <div class="text-900 font-medium text-xl">
+            {{ dataDashboard.appointment?.appointmentsCount ?? 0 }}
+          </div>
+        </div>
+        <div
+          class="flex align-items-center justify-content-center bg-blue-100 border-round w-3rem h-3rem"
+        >
+          <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+        </div>
+      </div>
+      <span class="text-green-500 font-medium"
+      >{{ dataDashboard.appointment?.appointmentsNewCount ?? 0 }} nuevas
+      </span>
+      <span class="text-500">citas agendadas en este día</span>
+    </div>
+  </div>
+  <div class="col-12 lg:col-6 xl:col-3">
+    <div class="card mb-0">
+      <div class="flex justify-content-between mb-3">
+        <div>
+          <span class="block text-500 font-medium mb-3">Usuarios</span>
+          <div class="text-900 font-medium text-xl">
+            {{ dataDashboard.user?.usersCount ?? 0 }}
+          </div>
+        </div>
+        <div
+          class="flex align-items-center justify-content-center bg-orange-100 border-round w-3rem h-3rem"
+        >
+          <i class="pi pi-map-marker text-orange-500 text-xl"></i>
+        </div>
+      </div>
+      <span class="text-green-500 font-medium"
+      >{{ dataDashboard.user?.usersCount ?? 0 }} nuevos
+      </span>
+      <span class="text-500">usuarios en este día</span>
+    </div>
+  </div>
+  <div class="col-12 lg:col-6 xl:col-3">
+    <div class="card mb-0">
+      <div class="flex justify-content-between mb-3">
+        <div>
+          <span class="block text-500 font-medium mb-3">Productos</span>
+          <div class="text-900 font-medium text-xl">
+            {{ dataDashboard.product?.productsCount ?? 0 }}
+          </div>
+        </div>
+        <div
+          class="flex align-items-center justify-content-center bg-cyan-100 border-round w-3rem h-3rem"
+        >
+          <i class="pi pi-inbox text-cyan-500 text-xl"></i>
+        </div>
+      </div>
+      <span class="text-green-500 font-medium"
+      >{{ dataDashboard.product?.productsNewCount ?? 0 }} nuevos
+      </span>
+      <span class="text-500">productos en este día</span>
+    </div>
+  </div>
+  <div class="col-12 lg:col-6 xl:col-3">
+    <div class="card mb-0">
+      <div class="flex justify-content-between mb-3">
+        <div>
+          <span class="block text-500 font-medium mb-3">Vehículos</span>
+          <div class="text-900 font-medium text-xl">
+            {{ dataDashboard.vehicle?.vehiclesCount ?? 0 }}
+          </div>
+        </div>
+        <div
+          class="flex align-items-center justify-content-center bg-purple-100 border-round w-3rem h-3rem"
+        >
+          <i class="pi pi-comment text-purple-500 text-xl"></i>
+        </div>
+      </div>
+      <span class="text-green-500 font-medium"
+      >{{ dataDashboard.vehicle?.vehiclesCount ?? 0 }} nuevos
+      </span>
+      <span class="text-500">vehículos en este día</span>
+    </div>
+  </div>
+
+  <div class="field flex align-items-center col-12">
+    <p-card class="w-full">
+      <ng-template pTemplate="header">
+        <p-galleria
+          [autoPlay]="true"
+          [circular]="true"
+          [containerStyle]="{ 'min-width': '100%' }"
+          [showItemNavigators]="true"
+          [showThumbnails]="false"
+          [value]="images"
+          class="m-auto"
+        >
+          <ng-template let-item pTemplate="item">
+            <img
+              [src]="item.itemImageSrc"
+              style="
+                width: 100%;
+                height: 500px;
+                object-fit: cover;
+                display: block;
+              "
+            />
+          </ng-template>
+          <ng-template let-item pTemplate="caption">
+            <h4 style="margin-bottom: 0.5rem; color: #ffffff">
+              {{ item.title }}
+            </h4>
+            <p>{{ item.alt }}</p>
+          </ng-template>
+        </p-galleria>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

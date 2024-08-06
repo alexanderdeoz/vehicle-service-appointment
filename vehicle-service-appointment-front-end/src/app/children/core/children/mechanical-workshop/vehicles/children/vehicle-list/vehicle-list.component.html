@@ -1,0 +1,12 @@
+<app-table
+  (onPageChange)="onPaginate($event)"
+  (reload)="getAll()"
+  [columns]="columns"
+  [loading]="vehiclesHttpService.loadedGetAll | async"
+  [menuItems]="menuItems"
+  [rows]="paginator.limit"
+  [showCreate]="false"
+  [totalRecords]="paginator.totalItems"
+  [value]="vehicles"
+  title="Vehículos"
+/>

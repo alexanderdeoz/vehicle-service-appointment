@@ -1,0 +1,14 @@
+<app-table
+  (create)="create()"
+  (delete)="deleteQuestion($event)"
+  (edit)="edit($event)"
+  (onPageChange)="onPaginate($event)"
+  (reload)="getAll()"
+  [columns]="columns"
+  [loading]="fuelHttpService.loadedGetAll | async"
+  [menuItems]="menuItems"
+  [rows]="paginator.limit"
+  [totalRecords]="paginator.totalItems"
+  [value]="fuels"
+  title="Combustibles"
+/>

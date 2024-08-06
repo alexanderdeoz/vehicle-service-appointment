@@ -1,0 +1,13 @@
+<app-table
+  (create)="create()"
+  (onPageChange)="onPaginate($event)"
+  (reload)="getAll()"
+  [columns]="columns"
+  [loading]="productsHttpService.loadedGetAll | async"
+  [menuItems]="menuItems"
+  [rows]="paginator.limit"
+  [showCreate]="true"
+  [totalRecords]="paginator.totalItems"
+  [value]="products"
+  title="Productos"
+/>

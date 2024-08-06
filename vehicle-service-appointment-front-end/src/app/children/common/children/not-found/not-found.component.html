@@ -1,0 +1,27 @@
+<div class="h-screen flex w-full">
+  <div
+    class="flex flex-1 flex-column justify-content-center align-items-center"
+  >
+    <div class="flex flex-column text-center gap-2 align-items-center">
+      <i class="pi pi-exclamation-triangle" style="font-size: 5rem"></i>
+      <h1 class="m-0 font-semibold">
+        {{ serverMessage?.summary }}
+      </h1>
+      <p-message
+        [severity]="serverMessage?.severity"
+        [text]="serverMessage?.detail"
+      ></p-message>
+    </div>
+    <div class="flex justify-content-center mt-6 max-w-10rem">
+      <a [href]="buttonHref">
+        <button
+          [label]="buttonLabel"
+          class="w-full p-3 text-xl"
+          pButton
+          pRipple
+          type="submit"
+        ></button>
+      </a>
+    </div>
+  </div>
+</div>

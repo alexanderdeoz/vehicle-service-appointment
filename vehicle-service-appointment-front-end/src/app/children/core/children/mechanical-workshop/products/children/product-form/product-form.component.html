@@ -1,0 +1,154 @@
+<form (ngSubmit)="onSubmit()" [formGroup]="form" class="w-full">
+  <p-card>
+    <ng-template pTemplate="header">
+      <p-toolbar>
+        <div
+          class="p-toolbar-group-left flex flex-wrap gap-2 align-items-between justify-content-between"
+        >
+          <span class="p-card-title">{{ title }}</span>
+        </div>
+        <div
+          class="p-toolbar-group-right flex flex-wrap gap-2 align-items-between justify-content-between"
+        >
+          <p-button
+            (onClick)="backToList()"
+            [disabled]="!(productsHttpService.loadedGetOne | async)"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-angle-left"
+            label="Ver lista"
+            severity="secondary"
+            size="small"
+            type="button"
+          />
+          <p-button
+            (onClick)="getOne()"
+            *ngIf="id"
+            [disabled]="!(productsHttpService.loadedGetOne | async)"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-refresh"
+            label="Recargar"
+            severity="help"
+            size="small"
+            type="button"
+          />
+          <p-button
+            [disabled]="
+              !(productsHttpService.loadedGetOne | async) && form.valid
+            "
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-plus"
+            label="Guardar"
+            severity="success"
+            size="small"
+            type="submit"
+          />
+        </div>
+      </p-toolbar>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <div
+        class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+      >
+        <span class="p-float-label w-full">
+          <input
+            [formControl]="name_field"
+            id="name_field"
+            pInputText
+            type="text"
+          />
+          <label for="name_field">Nombre</label>
+        </span>
+        <small
+          *ngIf="name_field.dirty || name_field.touched"
+          [dirty]="name_field.dirty"
+          [errors]="name_field.errors"
+          [touched]="name_field.touched"
+          appErrorMessage
+        >
+        </small>
+        <small *ngIf="!name_field.errors" id="name_field-help">
+          Nombre del usuario
+        </small>
+      </div>
+
+      <div
+        class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+      >
+        <span class="p-float-label w-full">
+          <input
+            [formControl]="sale_price_field"
+            id="sale_price_field"
+            pInputText
+            type="number"
+          />
+          <label for="sale_price_field">Precio de venta</label>
+        </span>
+        <small
+          *ngIf="sale_price_field.dirty || sale_price_field.touched"
+          [dirty]="sale_price_field.dirty"
+          [errors]="sale_price_field.errors"
+          [touched]="sale_price_field.touched"
+          appErrorMessage
+        >
+        </small>
+        <small *ngIf="!sale_price_field.errors" id="sale_price_field-help">
+          El precio con el que se vende el producto.
+        </small>
+      </div>
+
+      <!--todo: guardar foto del producto en el servidor -->
+
+      <!--        <div-->
+      <!--          class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"-->
+      <!--        >-->
+      <!--          <span class="p-float-label w-full">-->
+      <!--            <input [formControl]="path_photo_field" id="path_photo_field" pInputText type="text"/>-->
+      <!--            <label for="path_photo_field">Photo del producto</label>-->
+      <!--          </span>-->
+      <!--          <small-->
+      <!--            *ngIf="path_photo_field.dirty || path_photo_field.touched"-->
+      <!--            [dirty]="path_photo_field.dirty"-->
+      <!--            [errors]="path_photo_field.errors"-->
+      <!--            [touched]="path_photo_field.touched"-->
+      <!--            appErrorMessage-->
+      <!--          >-->
+      <!--          </small>-->
+      <!--          <small *ngIf="!path_photo_field.errors" id="path_photo_field-help">-->
+      <!--            Referencia del producto-->
+      <!--          </small>-->
+      <!--        </div>-->
+
+      <div
+        class="field inline-flex flex-wrap col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
+      >
+        <span class="p-float-label w-full">
+          <p-dropdown
+            [filter]="true"
+            [formControl]="status_field"
+            [options]="productStatusList"
+            [showClear]="true"
+            dropdownIcon="pi pi-angle-down"
+            inputId="status"
+            placeholder="Seleccione"
+            styleClass="w-full"
+          />
+          <label for="status_field">Estado</label>
+        </span>
+        <small
+          *ngIf="status_field.dirty || status_field.touched"
+          [dirty]="status_field.dirty"
+          [errors]="status_field.errors"
+          [touched]="status_field.touched"
+          appErrorMessage
+        >
+        </small>
+        <small *ngIf="!status_field.errors" id="status_field-help">
+          Estado del producto en el sistema.
+        </small>
+      </div>
+    </ng-template>
+  </p-card>
+</form>

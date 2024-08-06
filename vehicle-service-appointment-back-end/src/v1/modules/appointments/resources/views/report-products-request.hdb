@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin-top: 20px;
+        }
+
+        .card-footer-btn {
+            display: flex;
+            align-items: center;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+        }
+
+        .text-uppercase-bold-sm {
+            text-transform: uppercase !important;
+            font-weight: 500 !important;
+            letter-spacing: 2px !important;
+            font-size: .85rem !important;
+        }
+
+        .hover-lift-light {
+            transition: box-shadow .25s ease, transform .25s ease, color .25s ease, background-color .15s ease-in;
+        }
+
+        .justify-content-center {
+            justify-content: center !important;
+        }
+
+        .btn-group-lg > .btn, .btn-lg {
+            padding: 0.8rem 1.85rem;
+            font-size: 1.1rem;
+            border-radius: 0.3rem;
+        }
+
+        .btn-dark {
+            color: #fff;
+            background-color: #1e2e50;
+            border-color: #1e2e50;
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 1px solid rgba(30, 46, 80, .09);
+            border-radius: 0.25rem;
+            box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        }
+
+        .p-5 {
+            padding: 3rem !important;
+        }
+
+        .card-body {
+            flex: 1 1 auto;
+            padding: 1.5rem 1.5rem;
+        }
+
+        tbody, td, tfoot, th, thead, tr {
+            border-color: inherit;
+            border-style: solid;
+            border-width: 0;
+        }
+
+        .table td, .table th {
+            border-bottom: 0;
+            border-top: 1px solid #edf2f9;
+        }
+
+        .table > :not(caption) > * > * {
+            padding: 1rem 1rem;
+            background-color: var(--bs-table-bg);
+            border-bottom-width: 1px;
+            box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
+        }
+
+        .px-0 {
+            padding-right: 0 !important;
+            padding-left: 0 !important;
+        }
+
+        .table thead th, tbody td, tbody th {
+            vertical-align: middle;
+        }
+
+        tbody, td, tfoot, th, thead, tr {
+            border-color: inherit;
+            border-style: solid;
+            border-width: 0;
+        }
+
+        .mt-5 {
+            margin-top: 3rem !important;
+        }
+
+        .icon-circle[class*=text-] [fill]:not([fill=none]), .icon-circle[class*=text-] svg:not([fill=none]), .svg-icon[class*=text-] [fill]:not([fill=none]), .svg-icon[class*=text-] svg:not([fill=none]) {
+            fill: currentColor !important;
+        }
+
+        .svg-icon > svg {
+            width: 1.45rem;
+            height: 1.45rem;
+        }
+    </style>
+</head>
+<body>
+
+
+
+<h2>
+    {{ title }}
+</h2>
+<div class="border-top border-gray-200 pt-4 mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="text-muted mb-2">Cita No.</div>
+            <strong>#{{ appointment.id }}</strong>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="text-muted mb-2">Fecha de reporte</div>
+            <strong>{{ dateNow }}</strong>
+        </div>
+    </div>
+</div>
+<div class="border-top border-gray-200 mt-4 py-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="text-muted mb-2">Cliente</div>
+            <strong>
+                {{ appointment.user.name }}
+            </strong>
+            <p class="fs-sm">
+                {{ appointment.user.address }}
+                <br>
+                <a href="#!" class="text-purple"><span class="__cf_email__"
+                                                       data-cfemail="4a202522240a2f272b232664292527">[{{ appointment.user.email }}]</span>
+                </a>
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="text-muted mb-2">Mecánico</div>
+            <strong>
+                {{ appointment.mechanic.name }}
+            </strong>
+            <p class="fs-sm">
+                {{ appointment.mechanic.address }}
+                <br>
+                <a href="#!" class="text-purple"><span class="__cf_email__"
+                                                       data-cfemail="7f0b171a121a0c3f1a121e1613511c1012">[{{ appointment.mechanic.email }}]</span>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+<table class="table border-bottom border-gray-200 mt-3">
+    <thead>
+    <tr>
+        <th scope="col" class="fs-sm text-dark text-uppercase-bold-sm px-0">Placa</th>
+        <th scope="col" class="fs-sm text-dark text-uppercase-bold-sm px-0">Reparación</th>
+        <th scope="col" class="fs-sm text-dark text-uppercase-bold-sm px-0">Nuevo producto</th>
+        <th scope="col" class="fs-sm text-dark text-uppercase-bold-sm px-0">Precio de venta</th>
+        <th scope="col" class="fs-sm text-dark text-uppercase-bold-sm px-0">Estado</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each appointment.appointmentProducts}}
+        <tr>
+            <td class="px-0">
+                {{product.name}}
+            </td>
+            <td class="px-0">
+                {{#if repair}}
+                    Para reparar
+                    {{else}}-
+                {{/if}}
+            </td>
+            <td class="px-0">
+                {{#if child.product}}
+                    {{ child.product.name }}
+                    {{else}}-
+                {{/if}}
+            </td>
+            <td class="px-0">
+                {{product.sale_price}}
+            </td>
+            <td class="px-0">
+                {{ product.status }}
+            </td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
+
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

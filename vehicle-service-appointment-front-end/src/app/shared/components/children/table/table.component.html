@@ -1,0 +1,259 @@
+<p-card>
+  <ng-template pTemplate="header">
+    <p-table
+      #dt
+      (selectAllChange)="selectAllChange.emit($event)"
+      (selectionChange)="selectionChange.emit($event)"
+      [(selection)]="selection"
+      [breakpoint]="ScreenSize.md"
+      [columns]="columns"
+      [dataKey]="dataKey"
+      [globalFilterFields]="globalFilterFields"
+      [lazy]="true"
+      [loading]="!loading"
+      [reorderableColumns]="true"
+      [rowHover]="true"
+      [selectAll]="selectAll"
+      [selectionMode]="selectionMode"
+      [tableStyle]="{ width: '100%' }"
+      [totalRecords]="totalRecords"
+      [value]="value"
+      responsiveLayout="stack"
+      styleClass="p-datatable-gridlines"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="col-6 inline-flex flex-wrap gap-2 align-items-between justify-content-start"
+        >
+          <span class="p-card-title">{{ title }}</span>
+        </div>
+        <div
+          class="col-6 inline-flex flex-wrap gap-2 align-items-between justify-content-end"
+        >
+          <p-button
+            (onClick)="create.emit()"
+            *ngIf="showCreate"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-plus"
+            label="Crear"
+            severity="success"
+            size="small"
+          />
+          <p-button
+            (onClick)="reload.emit()"
+            *ngIf="showReload"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-refresh"
+            label="Recargar"
+            severity="help"
+            size="small"
+          />
+        </div>
+        <div
+          *ngIf="showCaption2"
+          class="col-6 inline-flex flex-wrap gap-2 align-items-between justify-content-start"
+        >
+          <button
+            (click)="clear(dt)"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-filter-slash"
+            label="Limpiar"
+            pButton
+            size="small"
+          ></button>
+        </div>
+        <div
+          *ngIf="showCaption2"
+          class="col-6 inline-flex flex-wrap gap-2 align-items-between justify-content-end"
+        >
+          <span class="p-input-icon-left mb-2">
+            <i class="pi pi-search"></i>
+            <input
+              #filter
+              (input)="onGlobalFilter(dt, $event)"
+              class="w-full"
+              pInputText
+              placeholder="Search Keyword"
+              type="text"
+            />
+          </span>
+        </div>
+      </ng-template>
+      <ng-template let-columns pTemplate="header">
+        <tr>
+          <th style="width: 3rem"></th>
+          <th *ngIf="selectionMode == SelectionModeEnum.multiple">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <ng-container *ngFor="let col of columns">
+            <th *ngIf="!col.sortable">
+              {{ col.header }}
+              <p-columnFilter
+                [field]="col.field"
+                display="menu"
+                placeholder="Search by name"
+                type="text"
+              ></p-columnFilter>
+            </th>
+            <th *ngIf="col.sortable" [pSortableColumn]="col.field">
+              {{ col.header }}
+              <p-sortIcon [field]="col.field"></p-sortIcon>
+              <p-columnFilter
+                [field]="col.field"
+                display="menu"
+                placeholder="Search by name"
+                type="text"
+              ></p-columnFilter>
+            </th>
+          </ng-container>
+          <th *ngIf="menuItems.length > 0">Opciones</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        let-columns="columns"
+        let-index="rowIndex"
+        let-rowData
+        pTemplate="body"
+      >
+        <tr [pReorderableRow]="index" [pSelectableRow]="rowData">
+          <td>
+            <span class="pi pi-bars" pReorderableRowHandle></span>
+          </td>
+          <td *ngIf="selectionMode == SelectionModeEnum.multiple">
+            <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+          </td>
+          <td *ngIf="selectionMode == SelectionModeEnum.single">
+            <p-tableRadioButton [value]="rowData"></p-tableRadioButton>
+          </td>
+          <ng-container *ngFor="let col of columns">
+            <ng-container [ngSwitch]="col.field">
+              <td *ngSwitchCase="'mechanic'">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field]?.email }}</span>
+              </td>
+              <td *ngSwitchCase="'user'">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field]?.email }}</span>
+              </td>
+              <td *ngSwitchCase="'brand'">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field]?.name }}</span>
+              </td>
+              <td *ngSwitchCase="'fuel'">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field]?.name }}</span>
+              </td>
+              <td *ngSwitchCase="'model'">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field]?.name }}</span>
+              </td>
+              <td *ngSwitchCase="'sale_price'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | currency }}</span>
+              </td>
+              <td *ngSwitchCase="'valid_until_at'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | date }}</span>
+              </td>
+              <td *ngSwitchCase="'scheduled_at'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | date }}</span>
+              </td>
+              <td *ngSwitchCase="'warranty_up_to'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | date }}</span>
+              </td>
+              <td *ngSwitchCase="'next_review_at'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | date }}</span>
+              </td>
+              <td *ngSwitchCase="'created_at'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | date }}</span>
+              </td>
+              <td *ngSwitchCase="'birth_date'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] | date }}</span>
+              </td>
+              <td *ngSwitchCase="'status'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <p-tag [value]="rowData[col.field]" severity="info"/>
+              </td>
+              <td *ngSwitchCase="'damage_frequency'" style="text-align: right">
+                <span class="p-column-title">{{ col.header }}</span>
+                <p-progressBar
+                  [showValue]="false"
+                  [value]="rowData[col.field]"
+                />
+              </td>
+              <td *ngSwitchDefault>
+                <span class="p-column-title">{{ col.header }}</span>
+                <span>{{ rowData[col.field] }}</span>
+              </td>
+            </ng-container>
+          </ng-container>
+          <td *ngIf="menuItems.length > 0" style="text-align: center">
+            <p-button
+              (onClick)="op.toggle($event)"
+              [raised]="true"
+              [rounded]="true"
+              icon="pi pi-cog"
+              severity="secondary"
+              size="small"
+            />
+            <p-overlayPanel #op>
+              <p-menu [model]="menuItems">
+                <ng-template let-item pTemplate="item">
+                  <ng-container *ngIf="item.route; else elseBlock">
+                    <a
+                      [attr.data-index]="index"
+                      [routerLink]="item.route"
+                      class="p-menuitem-link"
+                    >
+                      <span
+                        [attr.data-index]="index"
+                        [class]="item.icon"
+                      ></span>
+                      <span [attr.data-index]="index" class="ml-2">{{
+                          item.label
+                        }}</span>
+                    </a>
+                  </ng-container>
+                  <ng-template #elseBlock>
+                    <a
+                      [attr.data-index]="index"
+                      [href]="item.url"
+                      class="p-menuitem-link"
+                    >
+                      <span
+                        [attr.data-index]="index"
+                        [class]="item.icon"
+                      ></span>
+                      <span [attr.data-index]="index" class="ml-2">{{
+                          item.label
+                        }}</span>
+                    </a>
+                  </ng-template>
+                </ng-template>
+              </p-menu>
+            </p-overlayPanel>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td *ngIf="showPagination" [attr.colspan]="columns.length + 3">
+            <p-paginator
+              (onPageChange)="onPageChange.emit($event)"
+              [rows]="rows"
+              [totalRecords]="totalRecords"
+            ></p-paginator>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-card>

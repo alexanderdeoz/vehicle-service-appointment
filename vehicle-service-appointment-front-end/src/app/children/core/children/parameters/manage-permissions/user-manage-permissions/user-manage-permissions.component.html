@@ -1,0 +1,106 @@
+<p-card>
+  <ng-template pTemplate="header">
+    <p-table
+      [columns]="selectedColumns"
+      [loading]="
+        !(permissionsHttpService.loadedGetAll | async) ||
+        !(usersHttpService.loadedGetAll | async)
+      "
+      [value]="tableValue"
+    >
+      <ng-template pTemplate="caption">
+        <div
+          class="col-6 inline-flex flex-wrap gap-2 align-items-between justify-content-start"
+        >
+          <p-multiSelect
+            [(ngModel)]="selectedColumns"
+            [options]="entitiesFromSystem"
+            [style]="{ 'min-width': '200px' }"
+            display="chip"
+            optionLabel="name"
+            placeholder="Escoge columnas"
+            selectedItemsLabel="{0} columnas seleccionadas"
+          />
+        </div>
+        <div
+          class="col-6 inline-flex flex-wrap gap-2 align-items-between justify-content-end"
+        >
+          <p-button
+            (onClick)="reload()"
+            [raised]="true"
+            [rounded]="true"
+            icon="pi pi-refresh"
+            label="Recargar"
+            severity="help"
+            size="small"
+          />
+        </div>
+      </ng-template>
+      <ng-template let-columns pTemplate="header">
+        <th
+          [attr.rowspan]="3"
+          class="bg-pink-100"
+          pFrozenColumn
+          style="min-width: 200px"
+        >
+          {{ subtitle }}
+          <p-sortIcon field="name"></p-sortIcon>
+          <p-columnFilter
+            display="menu"
+            field="name"
+            placeholder="Search by name"
+            type="text"
+          ></p-columnFilter>
+        </th>
+        <tr>
+          <th
+            *ngFor="let entity of selectedColumns"
+            [attr.colspan]="(entity.entityFromSystemPermission ?? []).length"
+          >
+            {{ entity.name }}
+          </th>
+        </tr>
+        <tr>
+          <ng-container *ngFor="let entity of selectedColumns">
+            <ng-container
+              *ngFor="let permission of entity.entityFromSystemPermission ?? []"
+            >
+              <th>{{ permission.permission?.name }}</th>
+            </ng-container>
+          </ng-container>
+        </tr>
+      </ng-template>
+      <ng-template
+        let-columns="columns"
+        let-index="rowIndex"
+        let-rowData
+        pTemplate="body"
+      >
+        <tr [pReorderableRow]="index" [pSelectableRow]="rowData">
+          <td class="bg-purple-100" pFrozenColumn>{{ rowData.name }}</td>
+          <ng-container *ngFor="let entity of selectedColumns">
+            <ng-container
+              *ngFor="let permission of entity.entityFromSystemPermission ?? []"
+            >
+              <td>
+                <p-checkbox
+                  (click)="
+                    changeCheckUser(rowData, entity, permission.permission!)
+                  "
+                  [binary]="true"
+                  [ngModel]="
+                    hasPermission(rowData, entity, permission.permission!)
+                  "
+                  [value]="
+                    getValueCheckUser(rowData, entity, permission.permission!)
+                  "
+                  inputId="binary"
+                />
+              </td>
+            </ng-container>
+          </ng-container>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-card>

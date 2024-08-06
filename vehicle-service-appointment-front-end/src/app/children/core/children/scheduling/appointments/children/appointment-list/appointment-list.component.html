@@ -1,0 +1,12 @@
+<app-table
+  (create)="create()"
+  (onPageChange)="onPaginate($event)"
+  (reload)="getAll()"
+  [columns]="columns"
+  [loading]="appointmentsHttpService.loadedGetAll | async"
+  [menuItems]="menuItems"
+  [rows]="paginator.limit"
+  [totalRecords]="paginator.totalItems"
+  [value]="appointments"
+  title="Citas"
+/>

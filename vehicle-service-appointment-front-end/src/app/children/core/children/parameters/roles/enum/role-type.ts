@@ -1,0 +1,13 @@
+export enum RoleType {
+  SUPER_ADMINISTRATOR = 'SUPER ADMINISTRADOR',
+  ADMINISTRATOR = 'ADMINISTRADOR',
+  CUSTOMER = 'CLIENTE',
+  MECHANIC = 'MECÁNICO',
+}
+
+export const RoleTypeList = [
+  RoleType.SUPER_ADMINISTRATOR,
+  RoleType.ADMINISTRATOR,
+  RoleType.CUSTOMER,
+  RoleType.MECHANIC,
+];
